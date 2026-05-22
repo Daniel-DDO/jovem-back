@@ -8,4 +8,6 @@ import java.util.UUID;
 
 @Repository
 public interface TriboRepository extends JpaRepository<Tribo, UUID> {
+    boolean existsByNomeIgnoreCase(String nome);
+    boolean existsByNomeIgnoreCaseAndIdNot(String nome, UUID id);
 }
