@@ -9,72 +9,30 @@ import java.util.UUID;
 
 public record EventoPontuacaoDTO(
         UUID id,
-
         UUID temporadaId,
-        String nomeTemporada,
-
         TipoDestinoPontuacao destino,
-
         UUID triboTemporadaId,
-        String nomeTribo,
-
         UUID nacaoTemporadaId,
-        String nomeNacao,
-
         TipoPontuacao tipo,
-
         Integer pontos,
-
+        Integer multiplicador,
         String motivo,
-
         UUID missaoId,
-        String nomeMissao,
-
         OffsetDateTime criadoEm
-
 ) {
-
-    public EventoPontuacaoDTO(EventoPontuacao evento) {
+    public EventoPontuacaoDTO(EventoPontuacao model) {
         this(
-                evento.getId(),
-
-                evento.getTemporada().getId(),
-                evento.getTemporada().getNome(),
-
-                evento.getDestino(),
-
-                evento.getTriboTemporada() != null
-                        ? evento.getTriboTemporada().getId()
-                        : null,
-
-                evento.getTriboTemporada() != null
-                        ? evento.getTriboTemporada().getTribo().getNome()
-                        : null,
-
-                evento.getNacaoTemporada() != null
-                        ? evento.getNacaoTemporada().getId()
-                        : null,
-
-                evento.getNacaoTemporada() != null
-                        ? evento.getNacaoTemporada().getNacao().getNome()
-                        : null,
-
-                evento.getTipo(),
-
-                evento.getPontos(),
-
-                evento.getMotivo(),
-
-                evento.getMissao() != null
-                        ? evento.getMissao().getId()
-                        : null,
-
-                evento.getMissao() != null
-                        ? evento.getMissao().getNome()
-                        : null,
-
-                evento.getCriadoEm()
+                model.getId(),
+                model.getTemporada().getId(),
+                model.getDestino(),
+                model.getTriboTemporada() != null ? model.getTriboTemporada().getId() : null,
+                model.getNacaoTemporada() != null ? model.getNacaoTemporada().getId() : null,
+                model.getTipo(),
+                model.getPontos(),
+                model.getMultiplicador(),
+                model.getMotivo(),
+                model.getMissao() != null ? model.getMissao().getId() : null,
+                model.getCriadoEm()
         );
     }
-
 }

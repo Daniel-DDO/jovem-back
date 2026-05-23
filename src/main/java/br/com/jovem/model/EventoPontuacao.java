@@ -49,6 +49,10 @@ public class EventoPontuacao {
     @Column(nullable = false)
     private Integer pontos;
 
+    @NotNull
+    @Column(nullable = false)
+    private Integer multiplicador = 1;
+
     @NotBlank
     @Column(nullable = false, length = 500)
     private String motivo;

@@ -4,6 +4,7 @@ import br.com.jovem.enums.TipoDestinoPontuacao;
 import br.com.jovem.enums.TipoPontuacao;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 
 import java.util.UUID;
 
@@ -24,6 +25,9 @@ public record EventoPontuacaoRequest(
 
         @NotNull(message = "A quantidade de pontos é obrigatória.")
         Integer pontos,
+
+        @Positive(message = "O multiplicador deve ser maior que zero.")
+        Integer multiplicador,
 
         @NotBlank(message = "O motivo é obrigatório.")
         String motivo,

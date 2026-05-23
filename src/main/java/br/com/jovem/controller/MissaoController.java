@@ -5,6 +5,8 @@ import br.com.jovem.request.MissaoRequest;
 import br.com.jovem.service.MissaoService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,46 +20,45 @@ public class MissaoController {
     private MissaoService service;
 
     @PostMapping
-    public MissaoDTO criar(@RequestBody @Valid MissaoRequest request) {
+    public ResponseEntity<MissaoDTO> criar(@RequestBody @Valid MissaoRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.criar(request));
+    }
 
-        return service.criar(request);
+    @PostMapping("/lote")
+    public ResponseEntity<List<MissaoDTO>> criarEmLote(@RequestBody @Valid List<MissaoRequest> requests) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.criarEmLote(requests));
     }
 
     @PutMapping("/{id}")
-    public MissaoDTO editar(@PathVariable UUID id,
-                            @RequestBody @Valid MissaoRequest request) {
-
-        return service.editar(id, request);
+    public ResponseEntity<MissaoDTO> editar(@PathVariable UUID id, @RequestBody MissaoRequest request) {
+        return ResponseEntity.ok(service.editar(id, request));
     }
 
     @GetMapping("/{id}")
-    public MissaoDTO buscarPorId(@PathVariable UUID id) {
-
-        return service.buscarPorId(id);
+    public ResponseEntity<MissaoDTO> buscarPorId(@PathVariable UUID id) {
+        return ResponseEntity.ok(service.buscarPorId(id));
     }
 
     @GetMapping
-    public List<MissaoDTO> listar() {
-
-        return service.listar();
+    public ResponseEntity<List<MissaoDTO>> listar() {
+        return ResponseEntity.ok(service.listar());
     }
 
     @PatchMapping("/{id}/ativar")
-    public void ativar(@PathVariable UUID id) {
-
+    public ResponseEntity<Void> ativar(@PathVariable UUID id) {
         service.ativar(id);
+        return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("/{id}/desativar")
-    public void desativar(@PathVariable UUID id) {
-
+    public ResponseEntity<Void> desativar(@PathVariable UUID id) {
         service.desativar(id);
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{id}")
-    public void excluir(@PathVariable UUID id) {
-
+    public ResponseEntity<Void> excluir(@PathVariable UUID id) {
         service.excluir(id);
+        return ResponseEntity.noContent().build();
     }
-
 }
