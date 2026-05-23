@@ -7,7 +7,7 @@ import br.com.jovem.model.Missao;
 import br.com.jovem.model.NacaoTemporada;
 import br.com.jovem.model.Temporada;
 import br.com.jovem.model.TriboTemporada;
-import br.com.jovem.repository.EventoPontuacaoRepository;
+import br.com.jovem.repository.*;
 import br.com.jovem.request.EventoPontuacaoRequest;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -23,14 +23,23 @@ public class EventoPontuacaoService {
     @Autowired
     private EventoPontuacaoRepository repository;
 
+    @Autowired
+    private TriboTemporadaRepository triboTemporadaRepository;
+
+    @Autowired
+    private NacaoTemporadaRepository nacaoTemporadaRepository;
+
+    @Autowired
+    private TemporadaRepository temporadaRepository;
+
     @Transactional
     public EventoPontuacaoDTO criar(EventoPontuacaoRequest request) {
         validarDestino(request);
 
         EventoPontuacao evento = new EventoPontuacao();
 
-        Temporada temporada = new Temporada();
-        temporada.setId(request.temporadaId());
+        Temporada temporada = temporadaRepository.findById(request.temporadaId())
+                .orElseThrow(() -> new EntityNotFoundException("Temporada não encontrada com o ID fornecido."));
         evento.setTemporada(temporada);
 
         evento.setDestino(request.destino());
@@ -40,18 +49,23 @@ public class EventoPontuacaoService {
         int multiplicador = request.multiplicador() != null ? request.multiplicador() : 1;
         evento.setMultiplicador(multiplicador);
 
-        evento.setPontos(request.pontos() * multiplicador);
+        int pontosCalculados = request.pontos() * multiplicador;
+        evento.setPontos(pontosCalculados);
 
         if (request.triboTemporadaId() != null) {
-            TriboTemporada triboTemporada = new TriboTemporada();
-            triboTemporada.setId(request.triboTemporadaId());
+            TriboTemporada triboTemporada = triboTemporadaRepository.findById(request.triboTemporadaId())
+                    .orElseThrow(() -> new EntityNotFoundException("Tribo da Temporada não encontrada com o ID fornecido."));
+
             evento.setTriboTemporada(triboTemporada);
+            triboTemporada.setTotalPontos(triboTemporada.getTotalPontos()+pontosCalculados);
         }
 
         if (request.nacaoTemporadaId() != null) {
-            NacaoTemporada nacaoTemporada = new NacaoTemporada();
-            nacaoTemporada.setId(request.nacaoTemporadaId());
+            NacaoTemporada nacaoTemporada = nacaoTemporadaRepository.findById(request.nacaoTemporadaId())
+                    .orElseThrow(() -> new EntityNotFoundException("Nação da Temporada não encontrada com o ID fornecido."));
+
             evento.setNacaoTemporada(nacaoTemporada);
+            nacaoTemporada.setTotalPontos(nacaoTemporada.getTotalPontos()+pontosCalculados);
         }
 
         if (request.missaoId() != null) {
@@ -66,6 +80,22 @@ public class EventoPontuacaoService {
     @Transactional
     public void excluir(UUID id) {
         EventoPontuacao evento = buscarEntidade(id);
+        int pontosAEstornar = evento.getPontos();
+
+        if (evento.getTriboTemporada() != null) {
+            TriboTemporada tribo = evento.getTriboTemporada();
+            int saldoAtual = tribo.getTotalPontos() != null ? tribo.getTotalPontos() : 0;
+
+            tribo.setTotalPontos(saldoAtual - pontosAEstornar);
+        }
+
+        if (evento.getNacaoTemporada() != null) {
+            NacaoTemporada nacao = evento.getNacaoTemporada();
+            int saldoAtual = nacao.getTotalPontos() != null ? nacao.getTotalPontos() : 0;
+
+            nacao.setTotalPontos(saldoAtual - pontosAEstornar);
+        }
+
         repository.delete(evento);
     }
 
